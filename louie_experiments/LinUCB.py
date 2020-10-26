@@ -39,11 +39,7 @@ def calculate_linucb_single_bandit(source, num_actions, dest, models = None, for
     :param dest: outfile for printing the chosen actions and received rewards.
     :param forced: Optional, indicates to process only up to a certain time step or force take specified actions.
     '''
-    # number of trials used to compute expectation stats
-    # set to small value when debugging for faster speed
-    num_trials_prob_best_action = int(1e4)
-
-    if models == None:
+    if models is None:
         models = [RLogReg(D = NUM_FEATURES, Lambda = 1) for _ in range(num_actions)]
 
     with open(source, newline='') as inf, open(dest, 'w', newline='') as outf:
@@ -55,17 +51,20 @@ def calculate_linucb_single_bandit(source, num_actions, dest, models = None, for
         writer = csv.DictWriter(outf, fieldnames=field_names_out)
         writer.writeheader()
 
-        sample_number = 0
         cumulative_sample_regret = 0
         cumulative_expected_regret = 0
 
         chosen_actions = []
-        
+
         alpha = 2
 
-        for row in reader:
-            sample_number += 1
+        # TODO: compute expected regret for LinUCB
+        expected_regret = 0
+        # number of trials used to compute expectation stats
+        # set to small value when debugging for faster speed
+        num_trials_prob_best_action = int(1e4)
 
+        for sample_number, row in enumerate(reader, start=1):
             # get context features
             context = get_context(row)
 
@@ -79,7 +78,7 @@ def calculate_linucb_single_bandit(source, num_actions, dest, models = None, for
                 # take forced action if requested
                 action = forced.actions[sample_number - 1]
 
-            
+
             # only return action chosen up to specified time step
             if forced.time_step > 0 and sample_number <= forced.time_step:
                 chosen_actions.append(action)
@@ -93,10 +92,7 @@ def calculate_linucb_single_bandit(source, num_actions, dest, models = None, for
             models[action].update_posterior(context, 2 * reward - 1)
 
             # copy the input data to output file
-            out_row = {}
-
-            for i in range(len(reader.fieldnames)):
-                out_row[reader.fieldnames[i]] = row[reader.fieldnames[i]]
+            out_row = {fieldname: row[fieldname] for fieldname in reader.fieldnames}
 
             ''' write performance data (e.g. regret) '''
             optimal_action = int(row[HEADER_OPTIMALACTION]) - 1
@@ -115,16 +111,14 @@ def calculate_linucb_single_bandit(source, num_actions, dest, models = None, for
             # The oracle always chooses the best arm, thus expected reward
             # is simply the probability of that arm getting a reward.
             optimal_expected_reward = true_probs[optimal_action] * num_trials_prob_best_action
-            
-            # TODO: compute expected regret for LinUCB
-            expected_regret = 0
+
             cumulative_expected_regret += expected_regret
 
             out_row[H_ALGO_REGRET_EXPECTED] = expected_regret
             out_row[H_ALGO_REGRET_EXPECTED_CUMULATIVE] = cumulative_expected_regret
 
             writer.writerow(out_row)
-        
+
         return chosen_actions, models
 
 

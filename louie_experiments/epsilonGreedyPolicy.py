@@ -46,17 +46,15 @@ def calculateEpsilonGreedyPolicy(source, dest, eps=0.1):
     :param dest: The output destination dataset.
     :param eps: Epsilon parameter.
     '''
-    numActions = 3
-    numMooclets = 3
     with open(source, newline='') as inf, open(dest, 'w', newline='') as outf:
         reader = csv.DictReader(inf)
         fieldNamesOut = reader.fieldnames[0:3]
-        
+
         #output the conditions chosen
         fieldNamesOut.append('MOOClet1')
         fieldNamesOut.append('MOOClet2')
         fieldNamesOut.append('MOOClet3')
-        
+
         #output our samples drawn
         fieldNamesOut.append('RewardMOOClet1')
         fieldNamesOut.append('RewardMOOClet2')
@@ -64,20 +62,20 @@ def calculateEpsilonGreedyPolicy(source, dest, eps=0.1):
 
         writer = csv.DictWriter(outf, fieldnames=fieldNamesOut)
         writer.writeheader()
-        sampleNumber = 0
-        for row in reader:
-            sampleNumber += 1
+        numActions = 3
+        numMooclets = 3
+        for sampleNumber, row in enumerate(reader, start=1):
             #get the user vars
             ageQuartile = int(row['agequartilesUSER']);
             #user 0 instead of -1 for age quartiles
             if ageQuartile==-1:
               ageQuartile=0;
-            
+
             nDaysAct = int(row['ndaysactUSER']);
-                
+
             #choose a random action
             actions = []
-            for i in range(numMooclets):
+            for _ in range(numMooclets):
                 a, p = getEpsilonGreedyAction(eps, numActions, constant_policy)
                 actions.append(a)
 

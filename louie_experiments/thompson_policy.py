@@ -66,7 +66,6 @@ def write_performance(out_row, action, optimal_action, reward, sample_regret, cu
     out_row[H_ALGO_SAMPLE_REGRET_CUMULATIVE] = cumulative_sample_regret
     out_row[H_ALGO_REGRET_EXPECTED] = expected_regret
     out_row[H_ALGO_REGRET_EXPECTED_CUMULATIVE] = cumulative_expected_regret
-    pass
 
 
 def write_parameters(out_row, action, samples, models,
@@ -145,11 +144,7 @@ def calculate_thompson_single_bandit(source, num_actions, dest, models=None,
     :param forced: Optional, indicates to process only up to a certain time step or force take specified actions.
     :param relearn: Optional, at switch time, whether algorithm relearns on previous time steps using actions taken previously.
     '''
-    # number of trials used to run Thompson Sampling to compute expectation stats
-    # set to small value when debugging for faster speed
-    num_trials_prob_best_action = int(1e4)
-
-    if models == None:
+    if models is None:
         models = [BetaBern(success=1, failure=1) for cond in range(num_actions)]
 
     with open(source, newline='') as inf, open(dest, 'w', newline='') as outf:
@@ -164,15 +159,16 @@ def calculate_thompson_single_bandit(source, num_actions, dest, models=None,
         writer = csv.DictWriter(outf, fieldnames=field_names_out)
         writer.writeheader()
 
-        sample_number = 0
         cumulative_sample_regret = 0
         cumulative_expected_regret = 0
 
         chosen_actions = []
 
-        for row in reader:
-            sample_number += 1
+        # number of trials used to run Thompson Sampling to compute expectation stats
+        # set to small value when debugging for faster speed
+        num_trials_prob_best_action = int(1e4)
 
+        for sample_number, row in enumerate(reader, start=1):
             # get context features
             context = get_context(row)
 
@@ -225,10 +221,7 @@ def calculate_thompson_single_bandit(source, num_actions, dest, models=None,
                         models[a].save_state()
 
             # copy the input data to output file
-            out_row = {}
-
-            for i in range(len(reader.fieldnames)):
-                out_row[reader.fieldnames[i]] = row[reader.fieldnames[i]]
+            out_row = {fieldname: row[fieldname] for fieldname in reader.fieldnames}
 
             ''' write performance data (e.g. regret) '''
             optimal_action = int(row[HEADER_OPTIMALACTION]) - 1

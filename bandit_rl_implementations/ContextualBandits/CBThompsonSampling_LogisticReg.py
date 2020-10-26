@@ -100,12 +100,12 @@ if __name__== "__main__":
 	ax5 = fig.add_subplot(433)
 
 	alphas = [1,2,0.5]
+	T = 500
+	N = 10 #number of batches
+	versions = 3 #or the number of arms of the bandit
+	l=0.1 #lambda
+	X_size = 3
 	for a in alphas:
-		T = 500
-		N = 10 #number of batches
-		versions = 3 #or the number of arms of the bandit
-		l=0.1 #lambda
-		X_size = 3
 		#global regret
 		regret=0
 		# The set of past observations is made of triplets (x_i,a_i,r_i), so the dimension of the observation is-
@@ -157,7 +157,7 @@ if __name__== "__main__":
 		plt.plot(np.linspace(0,T,len(regrets)),regrets, color='r',label='Cumulative Regret')
 		plt.subplot(4,3,k+9)
 		plt.plot(np.linspace(0,T,len(perc_regrets)),perc_regrets, color='orange',label='% Regret')
-		#ax.scatter(np.linspace(0,T,len(chosen_rewards)),chosen_rewards)
+			#ax.scatter(np.linspace(0,T,len(chosen_rewards)),chosen_rewards)
 	ax1.set_ylabel('Loss')
 	ax1.set_xlabel('Time')
 	ax1.legend()

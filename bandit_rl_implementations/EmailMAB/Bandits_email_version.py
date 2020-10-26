@@ -11,7 +11,7 @@ class email_mooclet:
 		self.trials = np.zeros((len(versions),), dtype = int)
 		self.successes = np.zeros_like(self.trials)
 		self.versions = versions
-		if prior == None:
+		if prior is None:
 			self.prior = [(1.0,1.0) for i in range(len(versions))]
 
 	def add_data(self, version_num, success):
@@ -38,7 +38,7 @@ prior= [[4,33],[2,31],[4,50]]
 versions = ['Survey','Brief','Acknowledgement']
 trials_in = 1000
 scores = [0,0,0]
-tried_outputs = [0,0,0] 
+tried_outputs = [0,0,0]
 params = []
 
 # Plotting the initial prior graphs
@@ -49,8 +49,8 @@ for i in range(len(versions)):
 	plt.title(versions[i] + '- prior')
 	plt.xlim([0,1])
 
-# Now creating the posterior distribution as data is added. 
-for trial in range(trials_in):
+# Now creating the posterior distribution as data is added.
+for _ in range(trials_in):
 	e = email_mooclet(versions,prior)
 	input_version = np.random.randint(len(versions))		#Choosing a version at random
 	tried_outputs[input_version] +=1	
@@ -58,8 +58,8 @@ for trial in range(trials_in):
 	#e.add_data(input_version,(np.random.choice(np.arange(len(versions)),p = [0.6,0.1,0.3])== input_version)) #Uncomment this to add successes based on a probability distr to simulate actual patterns	
 	result,x,prior = e.personalize()
 	scores[result]+=1	
-	
-		   
+
+
 print(scores)													# Checking how many times each version won the sampling contest
 print(tried_outputs)											# Checking how many times each version was chosen to add a success to
 for i in range(len(versions)):									# As one particular version gets chosen more, it's probability of

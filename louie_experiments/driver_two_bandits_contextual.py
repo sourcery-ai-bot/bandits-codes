@@ -80,9 +80,9 @@ for t in time_steps:
 
 graph_title = 'Cumulative Regret from Single Sample as a function of action timestep'
 
-for t in time_steps:
-    max_step_to_plot = num_rows
+max_step_to_plot = num_rows
 
+for t in time_steps:
     imm_random = []
     imm_thompson = []
     imm_epsilon = []

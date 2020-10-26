@@ -23,22 +23,19 @@ def load_synthesized_single_bandit_data(source):
     '''
 
     rewards = []
-    
+
     with open(source, newline='') as inf:
         reader = csv.DictReader(inf)
 
         for row in reader:
             rewards.append(np.array([int(row[HEADER_ACTUALREWARD.format(
                 a + 1)]) for a in range(num_actions)]))
-            pass
-    pass
-
     rewards = np.array(rewards)
 
     # TODO: generate random features for now (e.g. age group, # days active).
     # Use actual 50 feature set later.
     age_group = np.random.randint(1, 6, size = rewards.shape[0])
-    
+
     # correlate features with rewards for an action in the following way:
     # if (age group + # days active >= 7): reward = 1 else 0
     days_act  = np.zeros(rewards.shape[0])
@@ -66,7 +63,7 @@ def load_mooclet_data(source, num_mooclets, num_actions):
     age_group = []
     days_act = []
     rewards = [[] for _ in range(num_mooclets * num_actions)]
-    
+
     reward_names = np.array([[HEADER_MOOCLET_REWARD.format(
         m + 1, chr(ord('A') + m), a + 1) for a in range(
         num_actions)] for m in range(num_mooclets)]).ravel()
@@ -80,9 +77,6 @@ def load_mooclet_data(source, num_mooclets, num_actions):
 
             for i in range(len(reward_names)):
                 rewards[i].append(int(row[reward_names[i]]))
-            pass
-    pass
-
     age_group = np.array(age_group)
     days_act = np.array(days_act)
     rewards = np.array(rewards).T
@@ -106,7 +100,7 @@ def cross_validate(X, Y, C, num_folds = 10):
     rmse_tests = []
     accuracy_tests = []
 
-    for fold in range(num_folds):
+    for _ in range(num_folds):
         
         X_train, X_test, y_train, y_test = cross_validation.train_test_split(
             X, Y, test_size = 1.0 / num_folds)
@@ -131,9 +125,7 @@ def cross_validate(X, Y, C, num_folds = 10):
         rmse_tests.append(rmse_test)
         accuracy_trains.append(accuracy_train)
         accuracy_tests.append(accuracy_test)
-        
-        pass
-    
+
     return np.mean(rmse_trains), np.mean(accuracy_trains), np.mean(rmse_tests), np.mean(accuracy_tests)
 
 
@@ -184,13 +176,9 @@ def plot_email_data(features, rewards, feature_labels = "", title = ""):
     if feature_labels != "":
         plt.xlabel(feature_labels[0])
         plt.ylabel(feature_labels[1])
-        pass
-
     plt.title(title)
 
     plt.show()
-
-    pass
 
 ''' DRIVER CODE '''
 

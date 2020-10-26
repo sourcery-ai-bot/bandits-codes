@@ -76,7 +76,6 @@ def write_performance(out_row, action, optimal_action, reward, sample_regret, cu
     out_row[H_ALGO_SAMPLE_REGRET_CUMULATIVE] = cumulative_sample_regret
     out_row[H_ALGO_REGRET_EXPECTED] = expected_regret
     out_row[H_ALGO_REGRET_EXPECTED_CUMULATIVE] = cumulative_expected_regret
-    pass
 
 
 def write_parameters(out_row, action, samples, models,

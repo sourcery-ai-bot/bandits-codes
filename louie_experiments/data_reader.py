@@ -38,7 +38,7 @@ def read_avg_regret(source, switch_time_step):
                 pos_regret.append(regret)
             all_regret.append(regret)
 
-    if len(pre_regret) == 0:
+    if not pre_regret:
         # some algorithms are oblivious to immediate data
         # so does not have regrets prior to switch
         pre_regret = [sys.maxsize]

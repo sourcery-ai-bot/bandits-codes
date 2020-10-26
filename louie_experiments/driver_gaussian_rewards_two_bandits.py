@@ -221,6 +221,7 @@ Generate rewards for 2 bandits from a multivariate gaussian
 See generate_gaussian_rewards method for more explanations
 """
 
+
 # Different correlation values
 c_list = [-1, -0.75, -0.5, -0.25, 0, 0.25, 0.5, 0.75, 1]
 
@@ -258,6 +259,7 @@ if not args.useExistingOutput:
 
 
 
+num_algorithms = 12  # UPDATE THIS IF NEW ALGORITHMS ARE ADDED OR EXISTING ONES REMOVED !!!
 # Generate average graph across all samples
 # Average result across different samples within each time step and each correlation value
 for t in time_steps:
@@ -549,7 +551,6 @@ for t in time_steps:
                            vertical_line=t)
 
     """Writing out average data to file"""
-    num_algorithms = 12  # UPDATE THIS IF NEW ALGORITHMS ARE ADDED OR EXISTING ONES REMOVED !!!
     # write table data
     with open(table_file.format(t), 'w', newline='') as tfp:
         tfcsv = csv.writer(tfp, delimiter=',')
@@ -573,9 +574,12 @@ for t in time_steps:
             'Delayed-All', 'Delayed-Before', 'Delayed-After', \
             'Stderr-Delayed-All', 'Stderr-Delayed-Before', 'Stderr-Delayed-After'] \
             for _ in range(num_algorithms)]
-        header = []
-        header.append(header1)
-        header.append(['Correlation'] + [item for sublist in header2 for item in sublist])
+        header = [
+            header1,
+            ['Correlation']
+            + [item for sublist in header2 for item in sublist],
+        ]
+
         tfcsv.writerows(header)
         tfcsv.writerows(csv_avg_data)
         if args.writeAllData:

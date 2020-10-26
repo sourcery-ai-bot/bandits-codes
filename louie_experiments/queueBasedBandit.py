@@ -277,28 +277,24 @@ def writeOutFile(infile, outfile, chosen_actions, num_actions, sampling_distribu
         # Construct output column header names
         field_names = reader.fieldnames
         field_names_out, group_header = create_headers(field_names, num_actions)
-        
+
         print(','.join(group_header), file=outf)
 
         writer = csv.DictWriter(outf, fieldnames=field_names_out)
         writer.writeheader()
-        
-        sample_number = 0
-        cumulative_sample_regret = 0
-        
-        for row in reader:
-            # copy the input data to output file
-            out_row = {}
 
-            for i in range(len(reader.fieldnames)):
-                out_row[reader.fieldnames[i]] = row[reader.fieldnames[i]]
-                
+        cumulative_sample_regret = 0
+
+        for sample_number, row in enumerate(reader):
+            # copy the input data to output file
+            out_row = {fieldname: row[fieldname] for fieldname in reader.fieldnames}
+
             ''' write performance data (e.g. regret) for this sample'''
             action = chosen_actions[sample_number]
             observed_rewards = [int(row[HEADER_ACTUALREWARD.format(a + 1)]) for a in range(num_actions)]
             sampling_dist = sampling_distributions[sample_number]
             reward = observed_rewards[action]
-                
+
             optimal_action = int(row[HEADER_OPTIMALACTION]) - 1
             optimal_action_reward = observed_rewards[optimal_action]
             sample_regret = optimal_action_reward - reward
@@ -309,13 +305,12 @@ def writeOutFile(infile, outfile, chosen_actions, num_actions, sampling_distribu
             out_row[H_ALGO_MATCH_OPTIMAL] = 1 if optimal_action == action else 0
             out_row[H_ALGO_SAMPLE_REGRET] = sample_regret
             out_row[H_ALGO_SAMPLE_REGRET_CUMULATIVE] = cumulative_sample_regret
-            
+
             for a in range(num_actions):
                 out_row[H_ALGO_ESTIMATED_PROB.format(a + 1)] = sampling_dist[a]
-           
+
 
             writer.writerow(out_row)
-            sample_number += 1
         
 def main():
     # Primarily for debugging

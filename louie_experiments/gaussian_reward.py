@@ -109,11 +109,15 @@ def load_matrix_from_table(table_file, num_algos = 9, num_correlations = 9):
                              Set to 9 by default because len([-1:1:0.25]) = 9
     '''
     reader = csv.reader(open(table_file, "r"), delimiter = ',')
-    x = []
-    for i in range(2 + num_correlations):
-        x.append(next(reader))
-    table = np.reshape(np.array([np.array(m[1:]) for m in x[2:]]).T, [num_algos,6,num_correlations]).astype(float).swapaxes(1,2)
-    return table
+    x = [next(reader) for _ in range(2 + num_correlations)]
+    return (
+        np.reshape(
+            np.array([np.array(m[1:]) for m in x[2:]]).T,
+            [num_algos, 6, num_correlations],
+        )
+        .astype(float)
+        .swapaxes(1, 2)
+    )
 
 
 def load_cumulative_regret_matrix(path, out_pickle_file):
@@ -153,8 +157,6 @@ def load_cumulative_regret_matrix(path, out_pickle_file):
                 if int(row[HEADER_SAMPLENUMBER]) == t_switch:
                     cum_regret_switch = cum_regret
                 cum_regret_final = cum_regret
-                pass
-            pass
         algorithm = file_meta[1]
         t_switch = file_meta[2]
         correlation = file_meta[3]
@@ -189,10 +191,8 @@ def split_table_file(table_file):
     with open(table_file) as tf:
         with open('average_regret_table.csv', 'w') as avgf:
             with open('all_regret_table.csv', 'w') as allf:
-                index = 0
                 allf.write('algorithm,bandit type,t,correlation,sample,run,{}\n'.format(','.join([str(i + 1) for i in range(240)])))
-                for line in tf:
-                    index += 1
+                for index, line in enumerate(tf, start=1):
                     if index <= 11:
                         avgf.write(line)
                     else:
@@ -214,7 +214,7 @@ def create_6D_MVN_file(path, output_path):
     '''
     num_actions = 3
     files_list = glob.glob(path + os.sep + "gauss_single_bandit_input*.csv")
-    
+
     name_to_prob_dict = {}
     for file_path in files_list:
         file_name = os.path.basename(file_path)
@@ -234,7 +234,7 @@ def create_6D_MVN_file(path, output_path):
             for row in reader:
                 probs = [float(row[HEADER_TRUEPROB.format(a + 1)]) for a in range(num_actions)]
                 break # just need to read the first row since reward probs are constant over t
-            
+
             name = (correlation, sample)
 
             if name not in name_to_prob_dict:
@@ -248,9 +248,16 @@ def create_6D_MVN_file(path, output_path):
     with open(output_path, 'w', newline='') as outf:
         writer = csv.writer(outf, delimiter=',')
         data = []
-        header = ['Correlation', 'Sample']
-        header.extend(['Immediate-Prob-Arm-{}'.format(a + 1) for a in range(num_actions)])
-        header.extend(['Delayed-Prob-Arm-{}'.format(a + 1) for a in range(num_actions)])
+        header = [
+            'Correlation',
+            'Sample',
+            *[
+                'Immediate-Prob-Arm-{}'.format(a + 1)
+                for a in range(num_actions)
+            ],
+            *['Delayed-Prob-Arm-{}'.format(a + 1) for a in range(num_actions)],
+        ]
+
         data.append(header)
         for k,v in name_to_prob_dict.items():
             row = [k[0], k[1]] + list(v.astype(str))
